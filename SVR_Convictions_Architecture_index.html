@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SVR / KRESK — Convictions Architecture IA · Wavestone</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0D1117;--navy2:#1A2035;--navy3:#232B45;
+  --purple:#5B2D8E;--purple-light:#7B4DB5;--purple-xlight:#EDE4F7;
+  --ocy:#00B27A;--ocy-light:#E0F5EE;
+  --azure:#0078D4;--azure-light:#E3F2FD;
+  --warn:#E8821A;--warn-light:#FFF3E0;
+  --danger:#D63B3B;--danger-light:#FFEBEB;
+  --text:#1A2035;--text2:#4A5568;--text3:#8090A8;
+  --bg:#F7F8FC;--card:#FFFFFF;--border:#E2E8F0;
+  --mono:'JetBrains Mono',monospace;
+}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;font-size:15px}
+
+/* HERO */
+.hero{background:var(--navy);color:#fff;padding:72px 48px 64px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-120px;right:-80px;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(91,45,142,.35) 0%,transparent 70%);pointer-events:none}
+.hero::after{content:'';position:absolute;bottom:-80px;left:30%;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(0,120,212,.15) 0%,transparent 70%);pointer-events:none}
+.hero-inner{max-width:980px;margin:0 auto;position:relative;z-index:1}
+.badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:4px;padding:5px 12px;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.7);margin-bottom:28px}
+.badge-dot{width:6px;height:6px;background:#E8821A;border-radius:50%;animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.hero h1{font-size:clamp(26px,3.8vw,44px);font-weight:900;line-height:1.1;letter-spacing:-.02em;margin-bottom:20px}
+.hero h1 span{color:#8B5CF6}
+.hero-sub{font-size:16px;color:rgba(255,255,255,.62);max-width:680px;line-height:1.75;margin-bottom:36px}
+.hero-meta{display:flex;gap:32px;flex-wrap:wrap}
+.meta-item{display:flex;flex-direction:column;gap:4px}
+.meta-label{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.4)}
+.meta-value{font-size:13px;font-weight:600;color:rgba(255,255,255,.82)}
+
+/* QUOTE */
+.quote-bar{background:var(--warn-light);border-left:4px solid var(--warn);padding:20px 48px}
+.quote-inner{max-width:980px;margin:0 auto;display:flex;gap:16px;align-items:flex-start}
+.quote-icon{font-size:26px;flex-shrink:0;margin-top:2px}
+.quote-text{font-size:13.5px;color:#7A4A00;line-height:1.7;font-style:italic}
+.quote-text strong{font-style:normal;color:#5A3200;font-weight:700}
+
+/* LAYOUT */
+.wrap{max-width:980px;margin:0 auto;padding:52px 48px}
+hr.sep{border:none;border-top:1px solid var(--border);margin:0}
+.section-label{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--purple);margin-bottom:12px}
+.section-title{font-size:clamp(20px,2.8vw,28px);font-weight:800;letter-spacing:-.02em;color:var(--text);margin-bottom:8px}
+.section-sub{font-size:14px;color:var(--text2);max-width:700px;line-height:1.75;margin-bottom:32px}
+
+/* PRINCIPLES */
+.principles{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.pcard{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:22px;position:relative;overflow:hidden}
+.pcard::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--purple)}
+.pcard-num{font-family:var(--mono);font-size:10px;font-weight:600;color:var(--purple);opacity:.5;margin-bottom:10px}
+.pcard-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:7px}
+.pcard-text{font-size:12.5px;color:var(--text2);line-height:1.6}
+
+/* UC TABLE */
+.uc-grid{display:grid;gap:7px}
+.uc-head{display:grid;grid-template-columns:190px 1fr 100px 100px 1fr;gap:12px;padding:9px 14px;background:var(--navy2);border-radius:6px;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.55)}
+.uc-row{display:grid;grid-template-columns:190px 1fr 100px 100px 1fr;gap:12px;align-items:center;padding:13px 14px;background:var(--card);border:1px solid var(--border);border-radius:8px;transition:box-shadow .15s}
+.uc-row:hover{box-shadow:0 2px 10px rgba(0,0,0,.07)}
+.uc-name{font-weight:700;font-size:12.5px;color:var(--text)}
+.uc-id{font-size:10.5px;color:var(--text3);margin-top:1px}
+.uc-desc{font-size:12px;color:var(--text2);line-height:1.5}
+.pill{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;font-size:10.5px;font-weight:600;white-space:nowrap}
+.pill.ok{background:var(--ocy-light);color:#005C40}
+.pill.warn{background:var(--warn-light);color:#7A3F00}
+.pill.bad{background:var(--danger-light);color:#8B0000}
+.pill.az{background:var(--azure-light);color:#003A6B}
+.pill.cond{background:#F3F0FF;color:#4A1D8C}
+.pd{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.pill.ok .pd{background:#00B27A}
+.pill.warn .pd{background:#E8821A}
+.pill.bad .pd{background:#D63B3B}
+.pill.az .pd{background:#0078D4}
+.pill.cond .pd{background:#7B4DB5}
+.uc-infra{font-size:11.5px;color:var(--text2);line-height:1.5}
+.row-t1{border-left:3px solid var(--ocy)}
+.row-t2{border-left:3px solid var(--warn)}
+.row-t3{border-left:3px solid var(--danger)}
+.horizon-bar{padding:10px 0 6px;display:flex;align-items:center;gap:12px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
+.hbar-t1{color:var(--ocy)}
+.hbar-t2{color:var(--warn)}
+.hbar-t3{color:var(--danger)}
+.hbar-line{flex:1;height:1px}
+.hbar-t1 .hbar-line{background:linear-gradient(90deg,var(--ocy),transparent)}
+.hbar-t2 .hbar-line{background:linear-gradient(90deg,var(--warn),transparent)}
+.hbar-t3 .hbar-line{background:linear-gradient(90deg,var(--danger),transparent)}
+.hbar-linl{flex:1;height:1px}
+.hbar-t1 .hbar-linl{background:linear-gradient(90deg,transparent,var(--ocy))}
+.hbar-t2 .hbar-linl{background:linear-gradient(90deg,transparent,var(--warn))}
+.hbar-t3 .hbar-linl{background:linear-gradient(90deg,transparent,var(--danger))}
+
+/* DARK BLOCK */
+.dark-block{background:var(--navy);border-radius:14px;padding:36px;color:#fff}
+.dark-block h3{font-size:20px;font-weight:800;margin-bottom:7px}
+.dark-block .dsub{color:rgba(255,255,255,.56);font-size:13.5px;margin-bottom:28px;line-height:1.65}
+.comp-table{width:100%;border-collapse:collapse;font-size:12.5px}
+.comp-table th{padding:9px 14px;text-align:left;font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.38);background:rgba(255,255,255,.05);border-bottom:1px solid rgba(255,255,255,.1)}
+.comp-table th:not(:first-child){text-align:center}
+.comp-table td{padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.07);color:rgba(255,255,255,.78);vertical-align:top}
+.comp-table td:not(:first-child){text-align:center;vertical-align:middle}
+.comp-table tr:last-child td{border-bottom:none}
+.comp-table tr:hover td{background:rgba(255,255,255,.03)}
+.tok{color:#00B27A;font-weight:700;font-size:12px}
+.twarn{color:#E8821A;font-weight:700;font-size:12px}
+.tno{color:#D63B3B;font-weight:700;font-size:12px}
+.cap{font-weight:600;color:rgba(255,255,255,.9)}
+.cap-note{font-size:10.5px;color:rgba(255,255,255,.42);margin-top:2px}
+.svr-note{font-size:10.5px;color:rgba(255,255,255,.48);line-height:1.5}
+.kp{background:rgba(216,67,26,.14);border:1px solid rgba(216,67,26,.28);border-radius:8px;padding:14px 18px;margin-top:22px;font-size:13px;color:rgba(255,255,255,.78);line-height:1.65}
+.kp strong{color:#FFB380}
+
+/* ARCHI LAYERS */
+.archi-wrap{display:grid;gap:10px;margin-top:8px}
+.archi-layer{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px 22px;display:grid;grid-template-columns:190px 1fr;gap:18px;align-items:center}
+.ly-label{display:flex;flex-direction:column;gap:5px}
+.ly-num{font-family:var(--mono);font-size:9.5px;font-weight:600;color:var(--text3)}
+.ly-name{font-size:13.5px;font-weight:800}
+.ly-sub{font-size:11px;color:var(--text3);line-height:1.4}
+.ly-chips{display:flex;flex-wrap:wrap;gap:7px;align-items:center}
+.chip{padding:4px 11px;border-radius:6px;font-size:11px;font-weight:600}
+.chip-ocy{background:var(--ocy-light);color:#005C40;border:1px solid rgba(0,178,122,.2)}
+.chip-az{background:var(--azure-light);color:#003A6B;border:1px solid rgba(0,120,212,.2)}
+.chip-m365{background:#f0e6ff;color:#3D1380;border:1px solid rgba(91,45,142,.2)}
+.chip-onp{background:#F0F4FF;color:#2A3F8C;border:1px solid rgba(42,63,140,.2)}
+.archi-conn{text-align:center;color:var(--text3);font-size:11.5px;padding:2px 0;display:flex;align-items:center;justify-content:center;gap:10px}
+.archi-conn::before,.archi-conn::after{content:'';flex:1;height:1px;border-top:1px dashed var(--border)}
+.cv-box{background:linear-gradient(135deg,#F3F0FF 0%,#E8F4FD 100%);border:1px solid var(--purple-xlight);border-radius:12px;padding:22px;margin-top:18px}
+.cv-box h4{font-size:15px;font-weight:800;color:var(--purple);margin-bottom:10px}
+.cv-list{list-style:none;display:flex;flex-direction:column;gap:9px}
+.cv-list li{display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--text2);line-height:1.55}
+.cv-list li::before{content:'→';color:var(--purple);font-weight:800;flex-shrink:0;margin-top:1px}
+
+/* SCENARIOS */
+.scenarios{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.scen{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.scen-hd{padding:18px 22px;display:flex;flex-direction:column;gap:4px}
+.scen.A .scen-hd{background:linear-gradient(135deg,#E0F5EE,#F0F9FF)}
+.scen.B .scen-hd{background:linear-gradient(135deg,#FFF3E0,#FFF5F5)}
+.scen-tag{font-size:9.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
+.scen.A .scen-tag{color:var(--ocy)}
+.scen.B .scen-tag{color:var(--danger)}
+.scen-name{font-size:16px;font-weight:800;color:var(--text)}
+.scen-sub{font-size:11.5px;color:var(--text2)}
+.scen-bd{padding:18px 22px;display:flex;flex-direction:column;gap:12px}
+.fi{display:flex;justify-content:space-between;align-items:center;padding:9px 12px;background:var(--bg);border-radius:6px;font-size:12.5px}
+.fi-lbl{color:var(--text2)}
+.fi-val{font-weight:700;font-family:var(--mono);font-size:12px}
+.fi-val.g{color:var(--ocy)}
+.fi-val.r{color:var(--danger)}
+.fi-val.o{color:var(--warn)}
+.fi-val.gr{color:var(--text3)}
+.fi-note{font-size:11px;color:var(--text3);line-height:1.55;padding:0 2px}
+.roi{padding:13px;border-radius:8px;font-size:12.5px;font-weight:600;text-align:center;line-height:1.6}
+.roi.a{background:var(--ocy-light);color:#005C40}
+.roi.b{background:var(--danger-light);color:#7A0000}
+
+/* DECISIONS */
+.decisions{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.dec{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:20px;display:flex;flex-direction:column;gap:9px}
+.dec.primary{border-color:var(--purple);box-shadow:0 0 0 1px var(--purple)}
+.dec-lbl{font-size:9.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--purple)}
+.dec-q{font-size:14px;font-weight:700;color:var(--text);line-height:1.4}
+.dec-opts{display:flex;flex-direction:column;gap:6px}
+.dec-opt{display:flex;align-items:flex-start;gap:9px;padding:8px 11px;background:var(--bg);border-radius:6px;font-size:12.5px;color:var(--text2);line-height:1.5}
+.opt-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:4px}
+
+/* SOURCE TAG */
+.src{display:inline-block;padding:1px 7px;background:#F0F0F5;border-radius:3px;font-size:10px;color:var(--text3);font-family:var(--mono);margin-left:4px}
+
+.footer-bar{background:var(--navy);color:rgba(255,255,255,.38);padding:18px 48px;font-size:11px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+.footer-bar strong{color:rgba(255,255,255,.65)}
+
+@media(max-width:760px){
+  .hero,.quote-bar,.wrap,.footer-bar{padding-left:20px;padding-right:20px}
+  .principles,.scenarios,.decisions{grid-template-columns:1fr}
+  .uc-head,.uc-row{grid-template-columns:1fr 1fr;font-size:11px}
+  .archi-layer{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="badge"><span class="badge-dot"></span>Position Wavestone — SVR / KRESK Cosmétiques</div>
+    <h1>L'infrastructure suit vos usages.<br><span>Voici, cas par cas, ce qu'elle peut.</span></h1>
+    <p class="hero-sub">Analyse factuelle de chaque cas d'usage SVR/KRESK vis-à-vis de votre stack actuelle — sans présupposer de décision cloud. Ce document répond à la question : qu'est-ce qu'une autre architecture permet concrètement, et à quel coût ?</p>
+    <div class="hero-meta">
+      <div class="meta-item"><span class="meta-label">Mission</span><span class="meta-value">Stratégie IA SVR / KRESK Cosmétiques</span></div>
+      <div class="meta-item"><span class="meta-label">Auteur</span><span class="meta-value">Wavestone — Practice Digital & IA</span></div>
+      <div class="meta-item"><span class="meta-label">Pour</span><span class="meta-value">COPIL Juin 2026 · Réponse commentaire architecture</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- QUOTE -->
+<div class="quote-bar">
+  <div class="quote-inner">
+    <span class="quote-icon">💬</span>
+    <p class="quote-text">« <strong>Ne partez pas du principe que l'on a décidé d'aller dans le Cloud.</strong> À vous de nous indiquer clairement et factuellement s'il y a des choses à faire pour faire fonctionner nos cas d'usage, et les impacts (notamment financiers) associés. <strong>Concrètement, ça nous permettra quoi qu'on ne peut pas faire aujourd'hui, et quel ROI en retour ?</strong> »</p>
+  </div>
+</div>
+
+<hr class="sep">
+
+<!-- SECTION 1 : PRINCIPES -->
+<div class="wrap">
+  <div class="section-label">Notre cadre d'analyse</div>
+  <h2 class="section-title">Trois principes avant toute conviction</h2>
+  <p class="section-sub">Le point de départ est votre stack, pas une plateforme cible. Voici comment nous avons structuré l'analyse.</p>
+  <div class="principles">
+    <div class="pcard">
+      <div class="pcard-num">01</div>
+      <div class="pcard-title">L'infrastructure suit les usages — pas l'inverse</div>
+      <p class="pcard-text">Aucune recommandation plateforme ne précède l'analyse des cas d'usage. Ce document répond UC par UC : qu'est-ce qui marche sur votre stack actuelle, et qu'est-ce qui bloque.</p>
+    </div>
+    <div class="pcard">
+      <div class="pcard-num">02</div>
+      <div class="pcard-title">Votre socle Oracle est une force, pas un problème</div>
+      <p class="pcard-text">Oracle DWH, Sage X3, Oracle AI DB 26ai, TTMD — tout cela fonctionne et représente un actif. Nous ne recommandons aucune migration de ce qui marche. Le POC TTMD en cours le confirme.</p>
+    </div>
+    <div class="pcard">
+      <div class="pcard-num">03</div>
+      <div class="pcard-title">La couche agentique est la seule zone de tension réelle</div>
+      <p class="pcard-text">Pour les UC T1 et la plupart des UC T2, votre infrastructure suffit. La tension apparaît uniquement sur les ambitions T3 — agents autonomes, AI Factory, surveillance proactive — qui nécessitent un framework d'orchestration qu'Oracle ne fournit pas nativement.</p>
+    </div>
+  </div>
+</div>
+
+<hr class="sep">
+
+<!-- SECTION 2 : UC MAPPING -->
+<div class="wrap">
+  <div class="section-label">Analyse cas d'usage par cas d'usage</div>
+  <h2 class="section-title">Ce que votre infrastructure permet — et ce qu'elle ne permet pas</h2>
+  <p class="section-sub">Lecture : pour chaque UC validé en atelier, nous indiquons précisément ce que votre stack couvre, ce qui nécessiterait Azure, et l'infrastructure concrète requise. <em>Sources : fiches UC atelier 04/06/2026 · slides VE-2, VE-3, FI-1, FI-2, R&D-2, R&D-3, SC-1 à 4, MK-1, GP-2 et 3, RT-1.</em></p>
+
+  <div class="uc-grid">
+    <div class="uc-head">
+      <div>Cas d'usage</div>
+      <div>Ce que ça fait</div>
+      <div>OCI couvre ?</div>
+      <div>Azure requis ?</div>
+      <div>Infra concrète requise</div>
+    </div>
+
+    <!-- T1 -->
+    <div class="horizon-bar hbar-t1">
+      <div class="hbar-linl"></div>
+      ⚡ T1 — Quick wins · Juillet–Décembre 2026
+      <div class="hbar-line"></div>
+    </div>
+
+    <div class="uc-row row-t1">
+      <div><div class="uc-name">VE1 — TTMD H1</div><div class="uc-id">Fiches clients dynamiques</div></div>
+      <div class="uc-desc">Améliorer les 10 questions du POC · notation structurée par 2 key users délégués</div>
+      <div><span class="pill ok"><span class="pd"></span>OCI natif</span></div>
+      <div><span class="pill ok"><span class="pd"></span>Non requis</span></div>
+      <div class="uc-infra">POC Artefact déjà sur Oracle OCI · Gemini 2.5 · Oracle AI DB 26ai · <strong>0 € infra additionnelle</strong></div>
+    </div>
+
+    <div class="uc-row row-t1">
+      <div><div class="uc-name">VE2 — Score SQL H1</div><div class="uc-id">Scoring pharmacies</div></div>
+      <div class="uc-desc">Score potentiel pharmacie dans la couche sémantique TTMD existante · atelier 2h règles métier</div>
+      <div><span class="pill ok"><span class="pd"></span>OCI natif</span></div>
+      <div><span class="pill ok"><span class="pd"></span>Non requis</span></div>
+      <div class="uc-infra">Même pipeline OCI que VE1 · <strong>coût marginal mutualisé POC VE1 · 5-10 k€</strong></div>
+    </div>
+
+    <div class="uc-row row-t1">
+      <div><div class="uc-name">FI1 — Anomalies clôture H1</div><div class="uc-id">Détection Copilot Chat</div></div>
+      <div class="uc-desc">Séverine exporte Sage X3 → upload Copilot Chat → prompt détection anomalies → validation 10 min</div>
+      <div><span class="pill ok"><span class="pd"></span>Non concerné</span></div>
+      <div><span class="pill az"><span class="pd"></span>M365 existant</span></div>
+      <div class="uc-infra">Copilot M365 (si licences) · <strong>0 € infra · 0 intégration DSI · start immédiat · 3-5 k€ prompts WS</strong></div>
+    </div>
+
+    <div class="uc-row row-t1">
+      <div><div class="uc-name">RD1 — Matching PI H1</div><div class="uc-id">Brevets × formules</div></div>
+      <div class="uc-desc">Export Coptis statique CSV + rapports PI reçus par Myriam · LLM croise les deux · alerte formules impactées</div>
+      <div><span class="pill ok"><span class="pd"></span>Compatible</span></div>
+      <div><span class="pill ok"><span class="pd"></span>Non requis</span></div>
+      <div class="uc-infra">LLM agnostique (OCI GenAI ou tout autre) · export CSV statique · <strong>pas d'API Coptis · 12-20 k€ build</strong></div>
+    </div>
+
+    <div class="uc-row row-t1">
+      <div><div class="uc-name">RD2 — Exploration H1</div><div class="uc-id">Stabilité & textures</div></div>
+      <div class="uc-desc">Cartographie dataset Coptis + Excel R&D · volumétrie · qualité des données · format</div>
+      <div><span class="pill ok"><span class="pd"></span>Compatible</span></div>
+      <div><span class="pill ok"><span class="pd"></span>Non requis</span></div>
+      <div class="uc-infra">Analyse exploratoire sur données existantes · <strong>pas de build infra T1 · 15-25 k€ WS + exploration</strong></div>
+    </div>
+
+    <div class="uc-row row-t1">
+      <div><div class="uc-name">SC1 — Option A</div><div class="uc-id">KB Freshdesk × Copilot</div></div>
+      <div class="uc-desc">Tickets Freshdesk → base de connaissances agents · Copilot M365 transcrit + synthétise · pas de Freddy AI</div>
+      <div><span class="pill ok"><span class="pd"></span>Non concerné</span></div>
+      <div><span class="pill az"><span class="pd"></span>M365 existant</span></div>
+      <div class="uc-infra">Copilot M365 + SharePoint KB + API Freshdesk → ShP indexé · <strong>licences mutualisées VE1/TR1 · 10-15 k€ build</strong></div>
+    </div>
+
+    <div class="uc-row row-t1">
+      <div><div class="uc-name">MK1 — H1 Enrollment</div><div class="uc-id">Studio IA Lazartigue</div></div>
+      <div class="uc-desc">Cadrage juridique SVR + confirmation Adobe Creative Cloud · pilote 1 campagne Lazartigue</div>
+      <div><span class="pill ok"><span class="pd"></span>Non concerné</span></div>
+      <div><span class="pill ok"><span class="pd"></span>Non requis</span></div>
+      <div class="uc-infra">Outils grand public (ChatGPT, Midjourney, Claude) déjà utilisés chez Lazartigue · <strong>0 € add. si CC existant</strong></div>
+    </div>
+
+    <div class="uc-row row-t1">
+      <div><div class="uc-name">GP — Copilot KB T1</div><div class="uc-id">Knowledge building</div></div>
+      <div class="uc-desc">CR Teams + SharePoint → KB structurée · formation 1j/département · 5 domaines · Lazartigue, DSI, SC, R&D, RH</div>
+      <div><span class="pill ok"><span class="pd"></span>Non concerné</span></div>
+      <div><span class="pill az"><span class="pd"></span>M365 existant</span></div>
+      <div class="uc-infra">Copilot M365 · <strong>0 € si licences E3+Copilot disponibles · SharePoint setup 0-3 k€ · formation 8-12 k€ WS</strong></div>
+    </div>
+
+    <!-- T2 -->
+    <div class="horizon-bar hbar-t2">
+      <div class="hbar-linl"></div>
+      ⚠ T2 — 2027 · Premières limites OCI identifiées sur certains UC
+      <div class="hbar-line"></div>
+    </div>
+
+    <div class="uc-row row-t2">
+      <div><div class="uc-name">VE1 — RAG + NBO H2</div><div class="uc-id">Enrichissement GERS/IQVIA</div></div>
+      <div class="uc-desc">Pipeline RAG · ingestion données GERS/IQVIA fichiers plats · Next Best Offer · déploiement 300 délégués</div>
+      <div><span class="pill warn"><span class="pd"></span>Partiel</span></div>
+      <div><span class="pill warn"><span class="pd"></span>Si OpenPharma</span></div>
+      <div class="uc-infra">OCI 26ai + LangChain (mentionné dans fiche VE-2) · <strong>si intégration OpenPharma : connecteur additionnel évalué avec équipe Romain · 20-40 k€</strong></div>
+    </div>
+
+    <div class="uc-row row-t2">
+      <div><div class="uc-name">VE2 — ML + GERS H2</div><div class="uc-id">Scoring ML pharmacies</div></div>
+      <div class="uc-desc">Modèle ML Oracle AI DB 26ai · données sell-out · recommandation dynamique territoire</div>
+      <div><span class="pill ok"><span class="pd"></span>OCI natif</span></div>
+      <div><span class="pill ok"><span class="pd"></span>Non requis</span></div>
+      <div class="uc-infra">Oracle AI DB 26ai + OML · GERS/IQVIA fichiers plats → Oracle · <strong>pipeline mutualisé VE1 H2 · économie 8-15 k€ · 30-55 k€</strong></div>
+    </div>
+
+    <div class="uc-row row-t2">
+      <div><div class="uc-name">FI1 — Plugin X3 H2</div><div class="uc-id">Alertes proactives clôture</div></div>
+      <div class="uc-desc">Connexion directe Sage X3 → détection auto sans export manuel → rapport mensuel structuré</div>
+      <div><span class="pill ok"><span class="pd"></span>Non concerné</span></div>
+      <div><span class="pill az"><span class="pd"></span>M365 + X3</span></div>
+      <div class="uc-infra">Plugin X3 + Copilot M365 ou Sage AI natif · API X3 à ouvrir (Lionel valide) · <strong>15-30 k€ build T2 · 2-3 k€/an maint.</strong></div>
+    </div>
+
+    <div class="uc-row row-t2">
+      <div><div class="uc-name">SC1 — Option B</div><div class="uc-id">Assistant RAG + Sage X3</div></div>
+      <div class="uc-desc">RAG sur KB construite en Option A + données commandes X3 · suggestion contextuelle · pilote 3-4 agents CRC Pharma</div>
+      <div><span class="pill warn"><span class="pd"></span>Partiel</span></div>
+      <div><span class="pill cond"><span class="pd"></span>Au choix</span></div>
+      <div class="uc-infra">Fiche SC-3 précise : <strong>Azure OpenAI (EU Data Boundary)</strong> OU <strong>Oracle AI DB 26ai</strong> · API Sage X3 requise · 30-50 k€ build · 8-12 sem</div>
+    </div>
+
+    <div class="uc-row row-t2">
+      <div><div class="uc-name">RD2 — ML Stabilité H2</div><div class="uc-id">Modèle prédictif formules</div></div>
+      <div class="uc-desc">Modèle ML stabilité + textures · interface formulateur · pilote 2-3 formulateurs volontaires</div>
+      <div><span class="pill warn"><span class="pd"></span>Limité</span></div>
+      <div><span class="pill cond"><span class="pd"></span>MLflow requis</span></div>
+      <div class="uc-infra">OML d'Oracle couvre le départ · <strong>tracking expériences ML (MLflow) non natif OCI</strong> · MLflow prévu au budget (N005 · 8-14 k€/an) · 40-80 k€ build</div>
+    </div>
+
+    <div class="uc-row row-t2">
+      <div><div class="uc-name">MK1 — Studio IA H2</div><div class="uc-id">Production Lazartigue</div></div>
+      <div class="uc-desc">Firefly + Canva brandés · workflows brief→génération→publication · copywriting Copilot M365</div>
+      <div><span class="pill ok"><span class="pd"></span>Non concerné</span></div>
+      <div><span class="pill az"><span class="pd"></span>M365 + CC</span></div>
+      <div class="uc-infra">Copilot M365 + Adobe Firefly (si Creative Cloud) · Canva AI si CC absent 300-700 €/an · <strong>5-12 k€ setup formation T2</strong></div>
+    </div>
+
+    <!-- T3 RUPTURE -->
+    <div class="horizon-bar hbar-t3">
+      <div class="hbar-linl"></div>
+      🔴 RUPTURE — T3 · 2028+ · OCI ne couvre pas ces ambitions nativement
+      <div class="hbar-line"></div>
+    </div>
+
+    <div class="uc-row row-t3">
+      <div><div class="uc-name">Agents SC autonomes</div><div class="uc-id">Service Client T3</div></div>
+      <div class="uc-desc">Agents qui résolvent en autonomie · alimentés par la KB SC construite en T1/T2 · onboarding zero friction</div>
+      <div><span class="pill bad"><span class="pd"></span>Non couvert</span></div>
+      <div><span class="pill bad"><span class="pd"></span>Requis</span></div>
+      <div class="uc-infra">Orchestration multi-étapes · LangChain (déjà cité en VE1 H2) + Copilot Studio · <strong>framework agentique enterprise absent d'OCI natif</strong></div>
+    </div>
+
+    <div class="uc-row row-t3">
+      <div><div class="uc-name">NBO proactif ventes</div><div class="uc-id">Ventes T3</div></div>
+      <div class="uc-desc">Recommandations commerciales sans requête explicite · couverture portefeuille automatique · extension Lazartigue</div>
+      <div><span class="pill bad"><span class="pd"></span>Non couvert</span></div>
+      <div><span class="pill bad"><span class="pd"></span>Requis</span></div>
+      <div class="uc-infra">Agent autonome avec mémoire d'état persistante · intégration OpenPharma + TTMD · <strong>orchestration agentique non disponible sur OCI seul</strong></div>
+    </div>
+
+    <div class="uc-row row-t3">
+      <div><div class="uc-name">AI Factory auto-alimentée</div><div class="uc-id">Transverse T3</div></div>
+      <div class="uc-desc">Nouveaux UC depuis KB existante sans build from scratch · agents inter-UC · extension BUs groupe</div>
+      <div><span class="pill bad"><span class="pd"></span>Non couvert</span></div>
+      <div><span class="pill bad"><span class="pd"></span>Requis</span></div>
+      <div class="uc-infra">Copilot Studio + LangChain · MLflow orchestration (N005) · <strong>plateforme agentique unifiée à définir lors de l'étude archi T4 2026</strong></div>
+    </div>
+
+    <div class="uc-row row-t3">
+      <div><div class="uc-name">Surveillance PI proactive</div><div class="uc-id">R&D T3</div></div>
+      <div class="uc-desc">Agent surveille nouvelles publications PI en continu · alertes sur formules impactées · accès Coptis API</div>
+      <div><span class="pill bad"><span class="pd"></span>Non couvert</span></div>
+      <div><span class="pill cond"><span class="pd"></span>Si accès cloud</span></div>
+      <div class="uc-infra">Conditionnel Coptis API (fin 2027) · <strong>agent temps réel + scheduling : non natif OCI · option on-prem si formules hors cloud</strong></div>
+    </div>
+
+  </div>
+</div>
+
+<hr class="sep">
+
+<!-- SECTION 3 : RUPTURE DETAIL -->
+<div class="wrap">
+  <div class="section-label">Ce que la rupture agentique signifie concrètement pour SVR</div>
+  <h2 class="section-title">OCI couvre vos données Oracle. Pas l'orchestration d'agents.</h2>
+  <p class="section-sub">Ce tableau compare les capacités sur les seules dimensions pertinentes pour vos UC — non une comparaison générale des plateformes. <em>Sources : benchmark cloud ETI Wavestone mai 2026 · fiches UC atelier · slides SC-1 à SC-4 · GP-3.</em></p>
+
+  <div class="dark-block">
+    <h3>Capacités clés pour les UC SVR — OCI vs Azure</h3>
+    <p class="dsub">Seules les dimensions qui impactent vos cas d'usage sont listées. Les capacités non pertinentes pour votre scope (infra data, analytics ERP, etc.) sont volontairement exclues.</p>
+
+    <table class="comp-table">
+      <thead>
+        <tr>
+          <th style="width:34%">Capacité — UC concerné</th>
+          <th style="width:19%">Oracle OCI / on-prem</th>
+          <th style="width:19%">Azure / M365</th>
+          <th style="width:28%">Impact concret pour SVR</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <div class="cap">RAG sur données Oracle (1 source)</div>
+            <div class="cap-note">VE1 H1, VE2, RD1 H1, SC1 A</div>
+          </td>
+          <td><span class="tok">✓ Natif</span><br><span style="font-size:10px;color:rgba(255,255,255,.4)">Oracle AI DB 26ai — Vector Search natif</span></td>
+          <td><span class="tok">✓ Compatible</span></td>
+          <td class="svr-note">T1 entier tourne sur OCI. Pas de changement requis. POC Artefact en cours le confirme.</td>
+        </tr>
+        <tr>
+          <td>
+            <div class="cap">RAG multi-sources (Oracle + GERS + OpenPharma)</div>
+            <div class="cap-note">VE1 H2, SC1 Option B</div>
+          </td>
+          <td><span class="twarn">⚠ Partiel</span><br><span style="font-size:10px;color:rgba(255,255,255,.4)">LangChain compatible OCI mais connecteurs à développer</span></td>
+          <td><span class="tok">✓ LangChain natif</span><br><span style="font-size:10px;color:rgba(255,255,255,.4)">Cité dans fiche VE-2 H2</span></td>
+          <td class="svr-note">VE1 H2 fonctionne sur OCI avec LangChain — coût d'intégration OpenPharma à estimer lors étude archi.</td>
+        </tr>
+        <tr>
+          <td>
+            <div class="cap">Interface M365 (Teams, SharePoint, Outlook)</div>
+            <div class="cap-note">FI1, SC1 A, GP, MK1 Copilot</div>
+          </td>
+          <td><span class="tno">✗ Non natif</span></td>
+          <td><span class="tok">✓ Natif Microsoft</span><br><span style="font-size:10px;color:rgba(255,255,255,.4)">FI1, SC1, GP = 0 € infra add.</span></td>
+          <td class="svr-note">FI1 H1, SC1 Option A, GP Knowledge Building — ces 3 UC ne nécessitent qu'OCI si licences M365 déjà en place.</td>
+        </tr>
+        <tr>
+          <td>
+            <div class="cap">Données clients SC1 B — conformité RGPD garantie</div>
+            <div class="cap-note">SC1 Option B (données commandes X3 + tickets)</div>
+          </td>
+          <td><span class="twarn">⚠ Régions EU</span><br><span style="font-size:10px;color:rgba(255,255,255,.4)">EU regions disponibles, engagement contractuel à vérifier</span></td>
+          <td><span class="tok">✓ EU Data Boundary</span><br><span style="font-size:10px;color:rgba(255,255,255,.4)">Cité explicitement dans fiche SC-3</span></td>
+          <td class="svr-note">Fiche SC-3 mentionne "Azure OpenAI EU Data Boundary" comme option pour SC1 B — à valider avec Julie Mahu (Juridique).</td>
+        </tr>
+        <tr>
+          <td>
+            <div class="cap">Tracking expériences ML (MLflow)</div>
+            <div class="cap-note">RD2 H2 modèle stabilité</div>
+          </td>
+          <td><span class="twarn">⚠ OML basique</span><br><span style="font-size:10px;color:rgba(255,255,255,.4)">Oracle Machine Learning disponible, MLflow non natif</span></td>
+          <td><span class="tok">✓ Azure ML + MLflow</span></td>
+          <td class="svr-note">MLflow prévu au budget mission (N005 · 8-14 k€/an). Peut s'héberger sur OCI ou Azure — à trancher lors étude archi.</td>
+        </tr>
+        <tr>
+          <td>
+            <div class="cap">Orchestration agents autonomes multi-étapes</div>
+            <div class="cap-note">SC T3 · NBO proactif · AI Factory</div>
+          </td>
+          <td><span class="tno">✗ Non couvert</span><br><span style="font-size:10px;color:rgba(255,255,255,.4)">Pas de framework agentique enterprise dans OCI</span></td>
+          <td><span class="tok">✓ LangChain + Copilot Studio</span></td>
+          <td class="svr-note">C'est la rupture centrale T3. LangChain (déjà cité dans vos fiches) + Copilot Studio = socle de l'AI Factory — OCI ne peut pas remplir ce rôle.</td>
+        </tr>
+        <tr>
+          <td>
+            <div class="cap">Analytics natif sur données Oracle (BI, reporting)</div>
+            <div class="cap-note">Oracle BI / OAC existant</div>
+          </td>
+          <td><span class="tok">✓✓ Excellent</span><br><span style="font-size:10px;color:rgba(255,255,255,.4)">"Très fort si données déjà Oracle — zéro ETL" · source benchmark</span></td>
+          <td><span class="twarn">⚠ Connecteur requis</span><br><span style="font-size:10px;color:rgba(255,255,255,.4)">Power BI possible via JDBC Oracle</span></td>
+          <td class="svr-note"><strong>Ne pas migrer votre BI Oracle.</strong> Power BI n'apporte de valeur ici que si licences M365 déjà en place — à évaluer avec Christophe Servolin avant toute décision.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="kp">
+      <strong>Synthèse honnête :</strong> Oracle OCI est votre meilleur outil pour tout ce qui interroge vos données Oracle — TTMD, VE2, analytics ERP, données X3. Sur les 8 UC T1, aucune décision cloud n'est requise. La limitation est structurelle uniquement sur <strong>l'orchestration d'agents autonomes T3</strong>, qui est l'ambition AI Factory du groupe. OCI ne construit pas de framework agentique enterprise. Ce n'est pas une critique de la plateforme — c'est un choix stratégique d'Oracle de se concentrer sur les données, pas sur l'orchestration. Source : benchmark cloud ETI Wavestone, mai 2026.
+    </div>
+  </div>
+</div>
+
+<hr class="sep">
+
+<!-- SECTION 4 : ARCHI CONVICTION -->
+<div class="wrap">
+  <div class="section-label">Notre conviction architecturale</div>
+  <h2 class="section-title">Bi-cloud complémentaire — pas un choix, une logique</h2>
+  <p class="section-sub">La recommandation n'est pas "quittez OCI pour Azure". C'est : chaque plateforme couvre ce pour quoi elle est faite, sans migration inutile. C'est également la conclusion de notre benchmark cloud ETI (mai 2026) : <em>"Architecture bi-cloud ciblée plutôt qu'un choix unique."</em></p>
+
+  <div class="archi-wrap">
+    <div class="archi-layer" style="border-color:var(--azure);box-shadow:0 0 0 1px rgba(0,120,212,.12)">
+      <div class="ly-label">
+        <span class="ly-num">COUCHE 3 · T3 — AI FACTORY</span>
+        <span class="ly-name" style="color:var(--azure)">Azure AI Foundry + Copilot Studio</span>
+        <span class="ly-sub">Agents autonomes · Orchestration · EU Data Boundary · LangChain</span>
+      </div>
+      <div class="ly-chips">
+        <span class="chip chip-az">🤖 Copilot Studio (agents)</span>
+        <span class="chip chip-az">🔗 LangChain orchestration</span>
+        <span class="chip chip-az">🔍 Azure OpenAI (EU Data Boundary)</span>
+        <span class="chip chip-az">📊 MLflow (RD2 H2)</span>
+        <span style="font-size:11px;color:var(--text3);width:100%;padding-top:4px">→ SC agents autonomes T3 · AI Factory · NBO proactif · surveillance PI · extension BUs groupe</span>
+      </div>
+    </div>
+
+    <div class="archi-conn">connecteurs Oracle ↔ Azure certifiés · données Oracle alimentent les agents Azure · zéro migration DWH</div>
+
+    <div class="archi-layer" style="border-color:var(--purple-light);box-shadow:0 0 0 1px rgba(91,45,142,.12)">
+      <div class="ly-label">
+        <span class="ly-num">COUCHE 2 · T1/T2 — COLLABORATION</span>
+        <span class="ly-name" style="color:var(--purple)">Microsoft 365 Copilot</span>
+        <span class="ly-sub">Knowledge · Workflows · Users · 22-55 k€/an</span>
+      </div>
+      <div class="ly-chips">
+        <span class="chip chip-m365">📁 SharePoint KB (GP T1)</span>
+        <span class="chip chip-m365">💬 Copilot Chat (FI1 H1)</span>
+        <span class="chip chip-m365">📋 KB procédures SC (SC1 A)</span>
+        <span class="chip chip-m365">✍ Copilot MK1 (copywriting)</span>
+        <span style="font-size:11px;color:var(--text3);width:100%;padding-top:4px">→ FI1 · SC1 Option A · GP · MK1 H2 · fondation KB de l'AI Factory T3</span>
+      </div>
+    </div>
+
+    <div class="archi-conn">données Oracle via connecteur · Freshdesk API → SharePoint · Sage X3 API (Lionel) → agents</div>
+
+    <div class="archi-layer" style="border-color:var(--ocy);box-shadow:0 0 0 1px rgba(0,178,122,.12)">
+      <div class="ly-label">
+        <span class="ly-num">COUCHE 1 · T1/T2 — DONNÉES & INTELLIGENCE</span>
+        <span class="ly-name" style="color:var(--ocy)">Oracle OCI + On-prem</span>
+        <span class="ly-sub">ERP · DWH · TTMD · AI DB 26ai · Coptis on-prem · 8-24 k€/an</span>
+      </div>
+      <div class="ly-chips">
+        <span class="chip chip-ocy">🗄 Oracle DWH on-prem</span>
+        <span class="chip chip-ocy">🔮 AI DB 26ai (Vector + RAG + OML)</span>
+        <span class="chip chip-ocy">💬 Talk to My Data (POC actif)</span>
+        <span class="chip chip-ocy">📦 Sage X3 ERP on-prem</span>
+        <span class="chip chip-onp">🔒 Coptis + formules R&D (on-prem, fin 2027)</span>
+        <span style="font-size:11px;color:var(--text3);width:100%;padding-top:4px">→ VE1 H1 · VE2 · analytics ERP · données sensibles R&D · sell-out GERS/IQVIA</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="cv-box">
+    <h4>Pourquoi cette architecture, et pas "tout OCI" ou "tout Azure" ?</h4>
+    <ul class="cv-list">
+      <li>Migrer votre Oracle DWH vers Azure serait une dépense sans valeur : vos données Oracle fonctionnent dans Oracle. Vos rapports BI aussi. On ne touche pas à ce qui fonctionne.</li>
+      <li>Rester "tout OCI" pour T3 crée un mur technique sur l'orchestration agentique — ce n'est pas une limite temporaire, c'est un choix de positionnement d'Oracle. OCI investit sur les données, pas sur les agents.</li>
+      <li>Azure n'est pas "mieux" qu'OCI. Il est <strong>complémentaire sur la couche agentique et M365</strong> — la seule couche que vous ne pouvez pas adresser avec votre stack actuelle.</li>
+      <li>La connexion Oracle ↔ Azure existe via connecteurs certifiés : vos données Oracle alimenteront les agents Azure sans ETL coûteux. C'est la conclusion de notre benchmark ETI mai 2026.</li>
+      <li>Sur Power BI vs Oracle BI : <strong>Oracle BI reste le bon outil pour vos rapports ERP</strong>. Power BI apporte une valeur si vous avez déjà des licences M365 E5 et souhaitez des requêtes en langage naturel sur la BI — à évaluer avec Christophe Servolin, pas une priorité immédiate.</li>
+    </ul>
+  </div>
+</div>
+
+<hr class="sep">
+
+<!-- SECTION 5 : FINANCIAL -->
+<div class="wrap">
+  <div class="section-label">Impact financier — deux scénarios</div>
+  <h2 class="section-title">Financer l'étude maintenant ou la réorientation plus tard</h2>
+  <p class="section-sub">Les chiffres T1 et T2 sont issus du budget consolidé mission. L'étude architecture T4 2026 est le seul investissement dont le montant est incertain — c'est précisément son objet de le préciser.</p>
+
+  <div class="scenarios">
+    <div class="scen A">
+      <div class="scen-hd">
+        <span class="scen-tag">✅ Scénario A — Notre recommandation</span>
+        <span class="scen-name">Étude architecture T4 2026</span>
+        <span class="scen-sub">Architecture hybride définie avant de builder le T3</span>
+      </div>
+      <div class="scen-bd">
+        <div class="fi"><span class="fi-lbl">Étude archi data platform + choix OCI/Azure T3</span><span class="fi-val g">70–120 k€</span></div>
+        <div class="fi"><span class="fi-lbl">Récurrent OCI run (TTMD + AI DB 26ai)</span><span class="fi-val">8–24 k€/an</span></div>
+        <div class="fi"><span class="fi-lbl">Récurrent M365 Copilot (multi-depts)</span><span class="fi-val">22–55 k€/an</span></div>
+        <div class="fi"><span class="fi-lbl">Réorientation architecture en T3</span><span class="fi-val g">0 €</span></div>
+        <div class="fi-note">L'étude T4 2026 produit : (1) architecture cible contractualisable avec les prestataires, (2) plan de migration données on-prem → OCI Cloud par UC et par horizon, (3) fiche de poste AI Engineer avec stack technique définie.</div>
+        <div class="roi a">Ce que ça débloque : AI Factory T3 · agents SC autonomes · NBO proactif · objectif Didier Tabary 600 M€ 2030<br><strong>Sans cette étude, l'AI Engineer recruté en T2 n'a pas de stack à piloter.</strong></div>
+      </div>
+    </div>
+
+    <div class="scen B">
+      <div class="scen-hd">
+        <span class="scen-tag">⚠ Scénario B — Risque identifié</span>
+        <span class="scen-name">Décision différée</span>
+        <span class="scen-sub">Build T2 sur OCI seul · arbitrage archi reporté à T3</span>
+      </div>
+      <div class="scen-bd">
+        <div class="fi"><span class="fi-lbl">Build T2 UC sur OCI uniquement</span><span class="fi-val o">Budget T2 normal</span></div>
+        <div class="fi"><span class="fi-lbl">Réorientation archi T2→T3 (non estimé)</span><span class="fi-val gr">À chiffrer lors étude</span></div>
+        <div class="fi"><span class="fi-lbl">Retard sur l'objectif AI Factory T3</span><span class="fi-val r">Non estimé</span></div>
+        <div class="fi"><span class="fi-lbl">Risque AI Engineer recruté sans stack définie</span><span class="fi-val r">Réel</span></div>
+        <div class="fi-note">Nous ne chiffrons pas le coût de réorientation — nous ne l'avons pas estimé et ne l'inventons pas. C'est précisément ce que l'étude archi T4 2026 a pour objet de prévenir. Ce que nous savons : sans décision archi avant T3, les prestataires buildent sur OCI et la refonte est à leur charge.</div>
+        <div class="roi b">Le risque principal n'est pas financier à court terme : c'est de builder des agents T2 sur OCI puis de découvrir que l'orchestration T3 nécessite une refonte architecturale en cours de montée en charge.</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top:20px;padding:18px 22px;background:var(--card);border:1px solid var(--border);border-radius:10px;border-left:4px solid var(--purple)">
+    <div style="font-weight:700;font-size:13.5px;color:var(--text);margin-bottom:10px">📌 Ce que les 70-120 k€ d'étude produisent concrètement pour SVR</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;font-size:12.5px;color:var(--text2)">
+      <div style="padding:12px;background:var(--bg);border-radius:6px;line-height:1.6"><strong style="color:var(--text);display:block;margin-bottom:4px">Architecture cible</strong>Quel workload reste sur OCI on-prem, quel workload migre vers OCI Cloud, quel workload va sur Azure — avec les flux de données entre les trois couches</div>
+      <div style="padding:12px;background:var(--bg);border-radius:6px;line-height:1.6"><strong style="color:var(--text);display:block;margin-bottom:4px">Volume et coût OCI migration</strong>Combien de données migrent de votre DWH on-prem vers OCI Cloud, par UC et par horizon, avec les coûts OCI associés (compute + storage)</div>
+      <div style="padding:12px;background:var(--bg);border-radius:6px;line-height:1.6"><strong style="color:var(--text);display:block;margin-bottom:4px">Profil AI Engineer défini</strong>Stack technique précise (Oracle AI 26ai + LangChain + Azure ?) → profil ciblable et recrutement Q4 2026 fondé sur une réalité technique, pas une hypothèse</div>
+    </div>
+  </div>
+</div>
+
+<hr class="sep">
+
+<!-- SECTION 6 : DECISIONS -->
+<div class="wrap">
+  <div class="section-label">Ce que nous vous demandons de valider</div>
+  <h2 class="section-title">Deux décisions, pas une</h2>
+  <p class="section-sub">Nous ne vous demandons pas de valider Azure vs OCI. Nous vous demandons de valider l'ambition T3 et le timing de l'étude qui permet de trancher.</p>
+
+  <div class="decisions">
+    <div class="dec primary">
+      <div class="dec-lbl">Décision 1 — Ambition stratégique</div>
+      <div class="dec-q">L'AI Factory T3 — agents autonomes SC, NBO proactif, extension groupe — est-elle votre cible pour 2028+ ?</div>
+      <div class="dec-opts">
+        <div class="dec-opt"><span class="opt-dot" style="background:var(--ocy)"></span><strong>Oui</strong> → lancer l'étude archi T4 2026 (70-120 k€) pour concevoir l'architecture qui permet T3 sans refonte · AI Engineer recruté Q4 2026 avec stack définie</div>
+        <div class="dec-opt"><span class="opt-dot" style="background:var(--warn)"></span><strong>Pas encore</strong> → concentrer T1/T2 sur OCI et M365 · reporter l'arbitrage archi à T2 · risque de réorientation à la charge des prestataires</div>
+      </div>
+    </div>
+    <div class="dec">
+      <div class="dec-lbl">Décision 2 — Timing & pilotage étude</div>
+      <div class="dec-q">Quand est lancée l'étude archi, et qui la pilote côté SVR/KRESK ?</div>
+      <div class="dec-opts">
+        <div class="dec-opt"><span class="opt-dot" style="background:var(--azure)"></span><strong>T4 2026</strong> (recommandé) → Andry (DSI) + CTO (arrivé juin) · Wavestone + experts OCI (Yves Rombert / Roland Caron) · avant recrutement AI Engineer</div>
+        <div class="dec-opt"><span class="opt-dot" style="background:var(--warn)"></span><strong>T2 2027</strong> → après bilan T1 · risque : AI Engineer recruté Q4 2026 sans architecture cible · prestataires T2 buildent sur OCI par défaut</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top:18px;padding:20px 24px;background:var(--navy2);border-radius:10px;color:rgba(255,255,255,.78);font-size:13px;line-height:1.75">
+    <strong style="color:#fff;font-size:14px;display:block;margin-bottom:6px">Notre position, sans ambiguïté :</strong>
+    Les 8 UC T1 fonctionnent sur votre infrastructure actuelle — <strong>aucune décision cloud n'est requise avant mi-juin 2026</strong>. Pour T2, OCI couvre VE2 ML et RD2 exploration ; Azure/M365 couvre FI1, SC1, GP, MK1 via les licences existantes. La seule tension structurelle est sur l'orchestration agentique T3. L'étude de 70-120 k€ n'est pas un pari sur une plateforme : c'est l'achat de la certitude sur ce que vous buildez en T3 — et la condition pour recruter un AI Engineer avec un brief technique solide.
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer-bar">
+  <span><strong>Wavestone</strong> · Mission SVR / KRESK Cosmétiques · Stratégie IA</span>
+  <span>Sources : fiches UC atelier 04/06/2026 · budget consolidé mission · benchmark cloud ETI Wavestone mai 2026 · Flexera State of the Cloud 2025 · Synergy Research Q4 2025</span>
+  <span>COPIL Juin 2026 · <strong>Confidentiel</strong></span>
+</div>
+
+</body>
+</html>
